@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Domain.Models;
-using WebApi.Configuration;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using Service;
+using Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,16 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddRazorPages();
-
-
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Connection"));
     //options.UseInMemoryDatabase("Connectionstring");
 });
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.AddControllers();
 

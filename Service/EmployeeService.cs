@@ -5,9 +5,9 @@ namespace Service
 {
     public class EmployeeService : IEmployeeService
     {
-        private EmployeeRepository repo { get; set; }
+        private IEmployeeRepository repo { get; set; }
 
-        public EmployeeService(EmployeeRepository repo)
+        public EmployeeService(IEmployeeRepository repo)
         {
             this.repo = repo;
         }

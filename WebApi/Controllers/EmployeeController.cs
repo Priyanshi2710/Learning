@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Service;
 using System.IO;
 using System.Net;
-using WebApi.Configuration;
 using WebApi.Pages;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -16,19 +15,18 @@ namespace WebApi.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+      
+        private readonly IEmployeeService _employeeService;
 
 
-        public EmployeeController(IUnitOfWork unitOfWork)
+        public EmployeeController(IEmployeeService employeeService)
         {
-            _unitOfWork = unitOfWork;
-
-
+            _employeeService = employeeService;
         }
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var emp = await _unitOfWork.EmployeeService.GetAll();
+            var emp = await _employeeService.GetAll();
 
             return Ok(emp);
         }
@@ -41,7 +39,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                var item = await _unitOfWork.EmployeeService.GetById(id);
+                var item = await _employeeService.GetById(id);
                 
                 if (item == null)
                 {
@@ -82,9 +80,9 @@ namespace WebApi.Controllers
                             Created = DateTime.Today,
                             Updated = DateTime.Today
                         };
-                        await _unitOfWork.EmployeeService.Add(emp);
+                        await _employeeService.Add(emp);
 
-                        await _unitOfWork.CompleteAsync();
+                       // await _employeeService.CompleteAsync();
 
                         return Ok("Employee created successfully." + emp.EmpID);
 
@@ -121,7 +119,7 @@ namespace WebApi.Controllers
                 else
                 {
                     var empid = upload.id;
-                    var data = await _unitOfWork.EmployeeService.GetById(empid);
+                    var data = await _employeeService.GetById(empid);
                     if (data == null)
                     {
                         return NotFound();
@@ -145,7 +143,7 @@ namespace WebApi.Controllers
                             }
 
                             data.EmpPhoto = newFileName;
-                            await _unitOfWork.Employee.Update(data);
+                            await _employeeService.Update(data);
 
                             return Ok("file uploaded successfully..." + path);
 
@@ -174,36 +172,46 @@ namespace WebApi.Controllers
                 }
                 else
                 {
-                    var data = await _unitOfWork.EmployeeService.GetById(id);
-                    
-                        if(data.EmpID == id)
+                    Validation validate = new Validation();
+                    string msg = validate.validation(entity);
+                    if (msg == "")
+                    {
+                        var data = await _employeeService.GetById(id);
+
+                        if (data.EmpID == id)
                         {
 
-                        data.Firstname = entity.Firstname;
-                        data.Lastname = entity.Lastname;
-                        data.Email = entity.Email;
-                        data.MaritalStatus = entity.MaritalStatus;
-                        data.Gender = entity.Gender;
-                        data.Birthdate = entity.Birthdate;
-                        data.Salary = entity.Salary;
-                        data.Address = entity.Address;
-                        data.CityCode = entity.CityCode;
-                        data.CountryCode = entity.CountryCode;
-                        data.StateCode = entity.StateCode;
-                        data.Password = entity.Password;
-                        data.Updated = DateTime.Today;
+                            data.Firstname = entity.Firstname;
+                            data.Lastname = entity.Lastname;
+                            data.Email = entity.Email;
+                            data.MaritalStatus = entity.MaritalStatus;
+                            data.Gender = entity.Gender;
+                            data.Birthdate = entity.Birthdate;
+                            data.Salary = entity.Salary;
+                            data.Address = entity.Address;
+                            data.CityCode = entity.CityCode;
+                            data.CountryCode = entity.CountryCode;
+                            data.StateCode = entity.StateCode;
+                            data.Password = entity.Password;
+                            data.Updated = DateTime.Today;
 
-                        await _unitOfWork.EmployeeService.Update(data);
+                            await _employeeService.Update(data);
 
-                        return Ok("Record updated successfully for employee id .."+id);
+                            return Ok("Record updated successfully for employee id .." + id);
 
+                        }
+
+                        else
+                        {
+                            return BadRequest("No data found for employee id of " + id);
+                        }
                     }
-                     
                     else
                     {
-                        return BadRequest("No data found for employee id of " + id);
+                        return ValidationProblem(msg);
+
                     }
-                    
+
                 }
             }catch (Exception ex)
             {
@@ -220,7 +228,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                await _unitOfWork.EmployeeService.Delete(id);
+                await _employeeService.Delete(id);
                 return Ok("Record successfully deleted...");
             }
         }

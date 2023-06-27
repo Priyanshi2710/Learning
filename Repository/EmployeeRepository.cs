@@ -23,12 +23,9 @@ namespace Repository
         {
             try
             {
-                var existingUser = await dbSet.Where(x => x.EmpID == entity.EmpID)
-                                                    .FirstOrDefaultAsync();
-
-                if (existingUser == null)
+                if (entity == null)
                 {
-                    return await Add(entity);
+                    return false;
                 }
                 else
                 {
