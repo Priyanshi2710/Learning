@@ -1,0 +1,263 @@
+﻿using Domain.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Service;
+using System.IO;
+using System.Net;
+using WebApi.Configuration;
+using WebApi.Pages;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace WebApi.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class EmployeeController : ControllerBase
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+
+        public EmployeeController(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+
+
+        }
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var emp = await _unitOfWork.EmployeeService.GetAll();
+
+            return Ok(emp);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEmployee(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest("Please enter correct employee id " + id);
+            }
+            else
+            {
+                var item = await _unitOfWork.EmployeeService.GetById(id);
+                //var item = await _unitOfWork.Employee.GetById(id);
+                if (item == null)
+                {
+                    return NotFound("Employee is not found of employee id " + id);
+                }
+                else
+                {
+                    return Ok(item);
+                }
+            }
+        }
+
+        [HttpPost(Name = "AddEmployee")]
+        public async Task<ActionResult<Employee>> Add(CreateEmployee entity)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Validation validate = new Validation();
+                    string msg = validate.validation(entity);
+                    if (msg == "")
+                    {
+                        var emp = new Employee()
+                        {
+                            Firstname = entity.Firstname,
+                            Lastname = entity.Lastname,
+                            Email = entity.Email,
+                            MaritalStatus = entity.MaritalStatus,
+                            Gender = entity.Gender,
+                            Birthdate = entity.Birthdate,
+                            Salary = entity.Salary,
+                            Address = entity.Address,
+                            CityCode = entity.CityCode,
+                            CountryCode = entity.CountryCode,
+                            StateCode = entity.StateCode,
+                            Password = entity.Password,
+                            Created = DateTime.Today,
+                            Updated = DateTime.Today
+                        };
+                        await _unitOfWork.EmployeeService.Add(emp);
+
+                        await _unitOfWork.CompleteAsync();
+
+                        return Ok("Employee created successfully." + emp.EmpID);
+
+                    }
+                    else
+                    {
+                        return ValidationProblem(msg);
+
+                    }
+                }
+                else
+                {
+
+                    return BadRequest(ModelState);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut, ActionName("UploadFile")]
+        public async Task<IActionResult> UploadFileAsync([FromForm] FileUpload upload)
+        {
+
+            try
+            {
+                if (upload.File == null || upload.File.Length == 0)
+                {
+                    return BadRequest("File not uploaded");
+                }
+                else
+                {
+                    var empid = upload.id;
+                    var data = await _unitOfWork.EmployeeService.GetById(empid);
+                    if (data == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        if (data.EmpID != 0)
+                        {
+                            var file = upload.File;
+
+
+                            string extension = Path.GetExtension(file.FileName);
+                            var newname = empid.ToString();
+                            string newFileName = newname.Trim() + extension; //pass newName here
+
+                            var path = Path.Combine(Directory.GetCurrentDirectory(), "Image", newFileName);
+
+                            using (var stream = new FileStream(path, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            data.EmpPhoto = newFileName;
+
+
+                            //emp.EmpPhoto = filePath;
+                            await _unitOfWork.Employee.Update(data);
+
+                            return Ok("file uploaded successfully..." + path);
+
+                        }
+                    }
+                }
+
+
+                return ValidationProblem();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromForm] CreateEmployee entity, int id)
+        {
+            try
+            {
+                if(id == 0)
+                {
+                    return BadRequest("please provide emp id");
+                }
+                else
+                {
+                    var data = await _unitOfWork.EmployeeService.GetById(id);
+                    
+                        if(data.EmpID == id)
+                        {
+
+                        data.Firstname = entity.Firstname;
+                        data.Lastname = entity.Lastname;
+                        data.Email = entity.Email;
+                        data.MaritalStatus = entity.MaritalStatus;
+                        data.Gender = entity.Gender;
+                        data.Birthdate = entity.Birthdate;
+                        data.Salary = entity.Salary;
+                        data.Address = entity.Address;
+                        data.CityCode = entity.CityCode;
+                        data.CountryCode = entity.CountryCode;
+                        data.StateCode = entity.StateCode;
+                        data.Password = entity.Password;
+                        data.Updated = DateTime.Today;
+
+                        await _unitOfWork.EmployeeService.Update(data);
+
+                        return Ok("Record updated successfully for employee id .."+id);
+
+                    }
+                     
+                    else
+                    {
+                        return BadRequest("No data found for employee id of " + id);
+                    }
+                    
+                }
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+             
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEmployee(int id)
+        {
+            if(id == 0)
+            {
+                    return BadRequest();
+            }
+            else
+            {
+                await _unitOfWork.EmployeeService.Delete(id);
+               
+           
+                return Ok("Record successfully deleted...");
+            }
+        }
+    }
+
+    public class Validation : ValidationMsg
+    {
+        public string validation(CreateEmployee entity)
+        {
+            string msg = "";
+            var Today = DateTime.Today;
+            DateTime date = (DateTime)entity.Birthdate;
+            if (entity.Salary < 500)
+            {
+                return SalaryMsg;
+            }
+            if (Today.Year - date.Year >= 18)
+            {
+                //msg = "";
+                return msg;
+                
+            }
+            else
+            {
+                return Age;
+
+            }
+
+        }
+    }
+
+
+}
