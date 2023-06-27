@@ -42,10 +42,10 @@ namespace WebApi.Controllers
             else
             {
                 var item = await _unitOfWork.EmployeeService.GetById(id);
-                //var item = await _unitOfWork.Employee.GetById(id);
+                
                 if (item == null)
                 {
-                    return NotFound("Employee is not found of employee id " + id);
+                    return NotFound("Employee is not found for the employee id " + id);
                 }
                 else
                 {
@@ -145,9 +145,6 @@ namespace WebApi.Controllers
                             }
 
                             data.EmpPhoto = newFileName;
-
-
-                            //emp.EmpPhoto = filePath;
                             await _unitOfWork.Employee.Update(data);
 
                             return Ok("file uploaded successfully..." + path);
@@ -164,8 +161,6 @@ namespace WebApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
-
         }
 
         [HttpPut("{id}")]
@@ -175,7 +170,7 @@ namespace WebApi.Controllers
             {
                 if(id == 0)
                 {
-                    return BadRequest("please provide emp id");
+                    return BadRequest("Please provide employee id");
                 }
                 else
                 {
@@ -226,8 +221,6 @@ namespace WebApi.Controllers
             else
             {
                 await _unitOfWork.EmployeeService.Delete(id);
-               
-           
                 return Ok("Record successfully deleted...");
             }
         }
@@ -246,7 +239,6 @@ namespace WebApi.Controllers
             }
             if (Today.Year - date.Year >= 18)
             {
-                //msg = "";
                 return msg;
                 
             }
