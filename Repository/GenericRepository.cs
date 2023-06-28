@@ -43,10 +43,12 @@ namespace Repository
 
         }
 
-        public virtual async Task<bool> Delete(int id)
+        public virtual async Task<bool> Delete(T entity)
         {
-
-            throw new NotImplementedException();
+            dbSet.Remove(entity);
+            context.SaveChanges();
+            return true;
+           
         }
 
         public virtual async Task<bool> Update(T entity)

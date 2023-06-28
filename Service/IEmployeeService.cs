@@ -13,6 +13,6 @@ namespace Service
         Task<IEnumerable<Employee>> GetAll();
         Task Add(Employee employee);
         Task Update(Employee employee);
-        Task Delete(int id);
+        Task Delete(Employee employee);
     }
 }

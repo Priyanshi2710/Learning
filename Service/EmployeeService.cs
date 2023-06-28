@@ -15,12 +15,6 @@ namespace Service
         {
            return repo.Add(employee);
         }
-
-        public Task Delete(int id)
-        {
-            return repo.Delete(id);
-        }
-
         public Task<IEnumerable<Employee>> GetAll()
         {
             return repo.All();
@@ -34,6 +28,11 @@ namespace Service
         public Task Update(Employee employee)
         {
             return repo.Update(employee);
+        }
+
+        public Task Delete(Employee employee)
+        {
+            return repo.Delete(employee);
         }
     }
 }

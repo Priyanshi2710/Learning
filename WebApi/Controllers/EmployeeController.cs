@@ -89,7 +89,7 @@ namespace WebApi.Controllers
                     }
                     else
                     {
-                        return ValidationProblem(msg);
+                        return BadRequest(msg);
 
                     }
                 }
@@ -208,7 +208,7 @@ namespace WebApi.Controllers
                     }
                     else
                     {
-                        return ValidationProblem(msg);
+                        return BadRequest(msg);
 
                     }
 
@@ -224,12 +224,21 @@ namespace WebApi.Controllers
         {
             if(id == 0)
             {
-                    return BadRequest();
+                    return BadRequest("Please provide employee id...");
             }
             else
             {
-                await _employeeService.Delete(id);
-                return Ok("Record successfully deleted...");
+                var item = await _employeeService.GetById(id);
+                if (item == null)
+                {
+                    return NotFound("Employee is not found for the employee id " + id);
+                }
+                else
+                {
+                    await _employeeService.Delete(item);
+                    return Ok("Record successfully deleted...");
+                }
+                           
             }
         }
     }
@@ -245,17 +254,26 @@ namespace WebApi.Controllers
             {
                 return SalaryMsg;
             }
-            if (Today.Year - date.Year >= 18)
-            {
-                return msg;
-                
-            }
-            else
+            if(Today.Year - date.Year< 18)
             {
                 return Age;
-
             }
-
+            if (Today.Year - date.Year == 18)
+            {
+               if(Today.Month < date.Month)
+                {
+                    return Age;
+                }
+               if(Today.Month == date.Month)
+                {
+                    if (Today.Day < date.Day)
+                    {
+                        return Age;
+                    }
+                }
+            }
+            return msg;
+           
         }
     }
 

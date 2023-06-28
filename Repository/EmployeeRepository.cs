@@ -41,17 +41,14 @@ namespace Repository
             }
         }
 
-        public override async Task<bool> Delete(int id)
+        public override async Task<bool> Delete(Employee entity)
         {
             try
             {
-                var exist = await dbSet.Where(x => x.EmpID == id)
-                                        .FirstOrDefaultAsync();
+                
+                if (entity == null) return false;
 
-                if (exist == null) return false;
-
-
-                dbSet.Remove(exist);
+                dbSet.Remove(entity);
                 context.SaveChanges();
 
                 return true;
