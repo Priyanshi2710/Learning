@@ -1,4 +1,5 @@
 ﻿using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Service;
@@ -11,6 +12,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
@@ -27,6 +29,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Get()
         {
             var emp = await _employeeService.GetAll();
+
 
             return Ok(emp);
         }
