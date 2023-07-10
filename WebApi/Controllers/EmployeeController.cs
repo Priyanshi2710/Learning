@@ -12,7 +12,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApi.Controllers
 {
-    [Authorize]
+
     [Route("[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
@@ -165,7 +165,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromForm] CreateEmployee entity, int id)
+        public async Task<IActionResult> Update( CreateEmployee entity, int id)
         {
             try
             {

@@ -70,7 +70,7 @@ app.MapRazorPages();
 
 
 app.MapControllerRoute(name: "default",
-               pattern: "{controller=Employee}");
+               pattern: "{controller=EmployeeView}/{action=Index}/{id?}");
 
 
 app.Run();
