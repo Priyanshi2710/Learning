@@ -13,6 +13,7 @@ namespace WebApi.Controllers
         // GET: ViewController
         public async Task<ActionResult> Index()
         {
+
             string apiUrl = "https://localhost:7286/Employee";
 
             List<Employee> EmpInfo = new List<Employee>();
@@ -167,16 +168,38 @@ namespace WebApi.Controllers
 
         public ActionResult Confirm(int id)
         {
-            return View();
+            Employee employee = null;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+                //HTTP GET
+                var responseTask = client.GetAsync(id.ToString());
+                responseTask.Wait();
+
+                var result = responseTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    var readTask = result.Content.ReadFromJsonAsync<Employee>();
+                    readTask.Wait();
+
+                    employee = readTask.Result;
+                }
+            }
+            ViewData["ID"] = id;
+            return View(employee);
+
         }
 
 
         // GET: ViewController/Delete/5
-        [HttpDelete]
+        [HttpPost]
+
         public ActionResult Delete(int id)
         {
             try
             {
+                
                 string apiUrl = "https://localhost:7286/Employee/" + id;
                 var request = new HttpRequestMessage(HttpMethod.Delete, apiUrl);
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

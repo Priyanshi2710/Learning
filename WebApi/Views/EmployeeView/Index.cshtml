@@ -6,142 +6,233 @@
     ViewBag.Title = "Index";
 
 }
-<h2>Index</h2>
 
-<p>
+<style type="text/css">
 
-    @Html.ActionLink("Create New", "Create")
-
-</p>
-
-<table class="table">
-
-    <tr>
-
-        <th>
-
-            @Html.DisplayNameFor(model => model.Firstname)
-
-        </th>
-
-        <th>
-
-            @Html.DisplayNameFor(model => model.Lastname)
-
-        </th>
-
-        <th>
-
-            @Html.DisplayNameFor(model => model.Email)
-
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Gender)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.MaritalStatus)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Birthdate)
-        </th>
-
-        <th>
-            @Html.DisplayNameFor(model => model.Salary)
-
-        </th>
-
-        <th>
-            @Html.DisplayNameFor(model => model.Address)
-
-        </th>
-
-        <th>
-            @Html.DisplayNameFor(model => model.CityCode)
-
-
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.StateCode)
-
-
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CountryCode)
-
-        </th>
-      
-        <th></th>
-
-    </tr>
-
-    @foreach (var item in Model)
-    {
-
-        <tr>
-
-            <td>
-
-                @Html.DisplayFor(modelItem => item.Firstname)
-
-            </td>
-
-            <td>
-
-                @Html.DisplayFor(modelItem => item.Lastname)
-
-
-            </td>
-
-            <td>
-
-                @Html.DisplayFor(modelItem => item.Email)
-
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Gender)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.MaritalStatus)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.Birthdate)
-
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.Salary)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.CityCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StateCode)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.CountryCode)
-            </td>
-
-            
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.EmpID }) |
-
-                @Html.ActionLink("Details", "Details", new { id=item.EmpID }) |
-
-                @Html.ActionLink("Delete", "Confirm", new { id=item.EmpID })
-
-            </td>
-
-        </tr>
-
+    th {
+        font-family: Arial,Verdana,sans-serif;
     }
 
-</table>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        display: block;
+        background-color: aliceblue;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    
+    tr:hover {
+        background-color: aliceblue;
+    }
+
+    .card {
+        height: fit-content;
+        width: fit-content;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px ;
+        margin-left: 50px;
+        margin-top: 100px;
+        
+    }
+
+    .card-content {
+        padding: 10px;
+        background-color: cornsilk;
+    }
+
+    .card-title {
+        font-size: 20px;
+        margin: 0;
+        text-align: center;
+    }
+
+    .card-description {
+        margin-top: 10px;
+    }
+
+    .card-link {
+        display: block;
+        margin-top: 10px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .form-center {
+        display: flex;
+        justify-content: center;
+    }
+
+    .contentcustom {
+        margin: 50px 50px 50px 100px;
+    }
+
+    .create{
+        font-size:larger;
+        margin-bottom:10px;
+    }
+
+</style>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h2 class="card-title">
+
+            Index Page
+
+        </h2>
+        <div class="form-horizontal contentcustom">
+            <div class="alert-info create">
+                @Html.ActionLink("Create New", "Create")
+            </div>
+            
+        <table class="table table-bordered table-active table-responsive">
+
+            <tr class="danger">
+
+                <th>
+
+                    @Html.DisplayNameFor(model => model.Firstname)
+
+                </th>
+
+                <th>
+
+                    @Html.DisplayNameFor(model => model.Lastname)
+
+                </th>
+
+                <th>
+
+                    @Html.DisplayNameFor(model => model.Email)
+
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Gender)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.MaritalStatus)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Birthdate)
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Salary)
+
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Address)
+
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.CityCode)
+
+
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StateCode)
+
+
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CountryCode)
+
+                </th>
+
+                <th>
+                  
+                </th>
+
+            </tr>
+
+            @foreach (var item in Model)
+            {
+
+                <tr>
+
+                    <td>
+
+                        @Html.DisplayFor(modelItem => item.Firstname)
+
+                    </td>
+
+                    <td>
+
+                        @Html.DisplayFor(modelItem => item.Lastname)
+
+
+                    </td>
+
+                    <td>
+
+                        @Html.DisplayFor(modelItem => item.Email)
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Gender)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.MaritalStatus)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Birthdate)
+
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Salary)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Address)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CityCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StateCode)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CountryCode)
+                    </td>
+
+
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id=item.EmpID }) |
+
+                        @Html.ActionLink("Details", "Details", new { id=item.EmpID }) |
+
+                        @Html.ActionLink("Delete", "Confirm", new { id=item.EmpID }
+                    )
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </table>
+        </div>
+
+</div>
+</div>
+
+
+
+
 
