@@ -261,9 +261,17 @@
                 </div>
 
         }
+        @{
+            if (ViewBag.Message != null)
+            {
+                <div>
+                    @ViewBag.Message
+                </div>
+            }
+        }
 
 
-        </div>
+    </div>
         </div>
 
 

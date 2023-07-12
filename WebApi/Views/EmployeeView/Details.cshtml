@@ -3,7 +3,7 @@
 
     ViewBag.Title = "Details";
 
-
+    @ViewData["D"];
 }
 <style type="text/css">
 
@@ -247,5 +247,13 @@
 
     </div>
 }
-</div>
+        @{
+            if (ViewBag.Message != null)
+            {
+                <div>
+                    @ViewBag.Message
+                </div>
+            }
+        }
+    </div>
 </div>

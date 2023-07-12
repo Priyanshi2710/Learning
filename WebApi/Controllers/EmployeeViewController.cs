@@ -1,10 +1,13 @@
-﻿using Azure.Core;
+﻿
+using Azure.Core;
 using Domain.Models;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+
+
 
 namespace WebApi.Controllers
 {
@@ -14,7 +17,9 @@ namespace WebApi.Controllers
         public async Task<ActionResult> Index()
         {
 
-            string apiUrl = "https://localhost:7286/Employee";
+            ViewBag.Message = TempData["Message"];
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+            string apiUrl = $"{url}Employee/";
 
             List<Employee> EmpInfo = new List<Employee>();
             using (var client = new HttpClient())
@@ -35,21 +40,27 @@ namespace WebApi.Controllers
                     EmpInfo = JsonConvert.DeserializeObject<List<Employee>>(EmpResponse);
                 }
                 //returning the employee list to view
+                ViewData["Data"] = EmpInfo;
+               
                 return View(EmpInfo);
             }
         }
 
 
         // GET: ViewController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int EmployeeID)
         {
             Employee employee = null;
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+          
+                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+                string apiUrl = $"{baseUrl}Employee/";
+               // client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync(id.ToString());
+                var responseTask = client.GetAsync(EmployeeID.ToString());
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -59,10 +70,11 @@ namespace WebApi.Controllers
                     readTask.Wait();
 
                     employee = readTask.Result;
+                    ViewData["D"] = apiUrl;
                 }
             }
             return View(employee);
-            
+
         }
 
         // GET: ViewController/Create
@@ -76,11 +88,16 @@ namespace WebApi.Controllers
 
         public ActionResult Create(CreateEmployee employee)
         {
-            string apiUrl = "https://localhost:7286/Employee/";
-
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+            string apiUrl = $"{url}Employee/";
 
             try
             {
+                if (employee == null)
+                {
+                    TempData["Message"] = "Kindly fill all details.";
+                    return View();
+                }
                 var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -94,8 +111,8 @@ namespace WebApi.Controllers
                     request.Content = content;
                     var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
                     response.EnsureSuccessStatusCode();
-                    // Console.WriteLine(await response.Content.ReadAsStringAsync());
-                    ViewBag.Message = "Data Insert Successfully";
+                   
+                   
                     return RedirectToAction("Index");
 
                 }
@@ -108,15 +125,17 @@ namespace WebApi.Controllers
         }
 
         // GET: ViewController/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int EmployeeID)
         {
             CreateEmployee employee = null;
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+                var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+                string apiUrl = $"{url}Employee/";
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync(id.ToString());
+                var responseTask = client.GetAsync(EmployeeID.ToString());
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -127,20 +146,28 @@ namespace WebApi.Controllers
 
                     employee = readTask.Result;
                 }
+                else
+                {
+                    TempData["Message"] = "Employee not found";
+                    return View();
+                }
             }
             return View(employee);
-           
+
         }
 
         // POST: ViewController/Edit/5
         [HttpPost]
-       
-        public  ActionResult Edit(CreateEmployee employee,int id)
+
+        public ActionResult Edit(CreateEmployee employee, int EmployeeID)
         {
-            
+
             try
             {
-                string apiUrl = "https://localhost:7286/Employee/" + id;
+               
+                
+                var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+                string apiUrl = $"{url}Employee/{EmployeeID}";
                 var request = new HttpRequestMessage(HttpMethod.Put, apiUrl);
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -155,26 +182,29 @@ namespace WebApi.Controllers
                     var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
                     response.EnsureSuccessStatusCode();
                     // Console.WriteLine(await response.Content.ReadAsStringAsync());
-                    ViewBag.Message = "Data updated Successfully";
+                    TempData["Message"] = "Data updated Successfully";
                     return RedirectToAction("Index");
                 }
 
             }
             catch
             {
-                return View();
+                return View(ViewBag.Message);
             }
         }
-
-        public ActionResult Confirm(int id)
+        public ActionResult Confirm(int EmployeeID)
         {
             Employee employee = null;
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+                var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+                string apiUrl = $"{url}Employee/";
+                // client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+
+                client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
-                var responseTask = client.GetAsync(id.ToString());
+                var responseTask = client.GetAsync(EmployeeID.ToString());
                 responseTask.Wait();
 
                 var result = responseTask.Result;
@@ -186,7 +216,7 @@ namespace WebApi.Controllers
                     employee = readTask.Result;
                 }
             }
-            ViewData["ID"] = id;
+            ViewData["ID"] = EmployeeID;
             return View(employee);
 
         }
@@ -195,35 +225,35 @@ namespace WebApi.Controllers
         // GET: ViewController/Delete/5
         [HttpPost]
 
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int EmployeeID)
         {
             try
             {
-                
-                string apiUrl = "https://localhost:7286/Employee/" + id;
+                var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+                string apiUrl = $"{url}Employee/{EmployeeID}";
                 var request = new HttpRequestMessage(HttpMethod.Delete, apiUrl);
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var content = new StringContent("", null, "application/json");
                 request.Content = content;
                 using (var client = new HttpClient())
                 {
-                    //Passing service base url
+                    
                     client.BaseAddress = new Uri(apiUrl);
-
                     var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
                     response.EnsureSuccessStatusCode();
-                    // Console.WriteLine(await response.Content.ReadAsStringAsync());
-                    ViewBag.Message = "Data Deleted Successfully";
+
+                    TempData["Message"] = "Employee data deleted Successfully";
                     return RedirectToAction("Index");
                 }
 
             }
-            catch
+            catch(NullReferenceException)
             {
+               
                 return View();
             }
 
         }
-        
+
     }
 }

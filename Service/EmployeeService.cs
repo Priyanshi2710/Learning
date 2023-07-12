@@ -13,16 +13,16 @@ namespace Service
         }
         public Task Add(Employee employee)
         {
-           return repo.Add(employee);
+            return repo.Add(employee);
         }
         public Task<IEnumerable<Employee>> GetAll()
         {
             return repo.All();
         }
 
-        public Task<Employee> GetById(int id)
+        public Task<Employee> GetById(int employeeId)
         {
-            return repo.GetById(id);
+            return repo.GetById(employeeId);
         }
 
         public Task Update(Employee employee)

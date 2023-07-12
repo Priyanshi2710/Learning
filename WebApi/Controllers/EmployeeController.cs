@@ -1,12 +1,9 @@
 ﻿using Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Service;
-using System.IO;
-using System.Net;
-using WebApi.Pages;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,42 +14,60 @@ namespace WebApi.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-      
-        private readonly IEmployeeService _employeeService;
 
+        private readonly IEmployeeService _employeeService;
+        
 
         public EmployeeController(IEmployeeService employeeService)
         {
             _employeeService = employeeService;
+           
         }
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var emp = await _employeeService.GetAll();
-
-
-            return Ok(emp);
-        }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetEmployee(int id)
-        {
-            if (id == 0)
+            try
             {
-                return BadRequest("Please enter correct employee id " + id);
-            }
-            else
-            {
-                var item = await _employeeService.GetById(id);
-                
-                if (item == null)
+                var emp = await _employeeService.GetAll();
+                if(emp == null)
                 {
-                    return NotFound("Employee is not found for the employee id " + id);
+                    return NotFound("Employee not found..");
+                }
+                return Ok(emp);
+
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+        }
+        [HttpGet("{employeeId}")]
+        public async Task<IActionResult> GetEmployee(int employeeId)
+        {
+            try
+            {
+                if (employeeId == 0)
+                {
+                    return BadRequest("Please enter correct employee id " + employeeId);
                 }
                 else
                 {
-                    return Ok(item);
+                    var item = await _employeeService.GetById(employeeId);
+
+                    if (item == null)
+                    {
+                        return NotFound("Employee not found" + employeeId);
+                    }
+                    else
+                    {
+                        return Ok(item);
+                    }
                 }
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
+            
         }
 
         [HttpPost(Name = "AddEmployee")]
@@ -84,10 +99,7 @@ namespace WebApi.Controllers
                             Updated = DateTime.Today
                         };
                         await _employeeService.Add(emp);
-
-                       // await _employeeService.CompleteAsync();
-
-                        return Ok("Employee created successfully." + emp.EmpID);
+                        return Ok("Employee is created" + emp.EmpID);
 
                     }
                     else
@@ -121,8 +133,8 @@ namespace WebApi.Controllers
                 }
                 else
                 {
-                    var empid = upload.id;
-                    var data = await _employeeService.GetById(empid);
+                    var employeeId = upload.id;
+                    var data = await _employeeService.GetById(employeeId);
                     if (data == null)
                     {
                         return NotFound();
@@ -135,7 +147,7 @@ namespace WebApi.Controllers
 
 
                             string extension = Path.GetExtension(file.FileName);
-                            var newname = empid.ToString();
+                            var newname = employeeId.ToString();
                             string newFileName = newname.Trim() + extension; //pass newName here
 
                             var path = Path.Combine(Directory.GetCurrentDirectory(), "Image", newFileName);
@@ -164,12 +176,12 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update( CreateEmployee entity, int id)
+        [HttpPut("{employeeId}")]
+        public async Task<IActionResult> Update(CreateEmployee entity, int employeeId)
         {
             try
             {
-                if(id == 0)
+                if (employeeId == 0)
                 {
                     return BadRequest("Please provide employee id");
                 }
@@ -179,9 +191,9 @@ namespace WebApi.Controllers
                     string msg = validate.validation(entity);
                     if (msg == "")
                     {
-                        var data = await _employeeService.GetById(id);
+                        var data = await _employeeService.GetById(employeeId);
 
-                        if (data.EmpID == id)
+                        if (data.EmpID == employeeId)
                         {
 
                             data.Firstname = entity.Firstname;
@@ -200,13 +212,13 @@ namespace WebApi.Controllers
 
                             await _employeeService.Update(data);
 
-                            return Ok("Record updated successfully for employee id .." + id);
+                            return Ok("Record updated successfully for employee id .." + employeeId);
 
                         }
 
                         else
                         {
-                            return BadRequest("No data found for employee id of " + id);
+                            return BadRequest("No data found for employee id of " + employeeId);
                         }
                     }
                     else
@@ -216,33 +228,43 @@ namespace WebApi.Controllers
                     }
 
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-             
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmployee(int id)
+
+        [HttpDelete("{employeeId}")]
+        public async Task<IActionResult> DeleteEmployee(int employeeId)
         {
-            if(id == 0)
+            try
             {
-                    return BadRequest("Please provide employee id...");
-            }
-            else
-            {
-                var item = await _employeeService.GetById(id);
-                if (item == null)
+                if (employeeId == 0)
                 {
-                    return NotFound("Employee is not found for the employee id " + id);
+                    return BadRequest("Please provide employee id...");
                 }
                 else
                 {
-                    await _employeeService.Delete(item);
-                    return Ok("Record successfully deleted...");
+                    var item = await _employeeService.GetById(employeeId);
+                    if (item == null)
+                    {
+                        return NotFound("Employee is not found for the employee id " + employeeId);
+                    }
+                    else
+                    {
+                        await _employeeService.Delete(item);
+                        return Ok("Record successfully deleted...");
+                    }
+
                 }
-                           
+
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+           
         }
     }
 
@@ -257,17 +279,17 @@ namespace WebApi.Controllers
             {
                 return SalaryMsg;
             }
-            if(Today.Year - date.Year< 18)
+            if (Today.Year - date.Year < 18)
             {
                 return Age;
             }
             if (Today.Year - date.Year == 18)
             {
-               if(Today.Month < date.Month)
+                if (Today.Month < date.Month)
                 {
                     return Age;
                 }
-               if(Today.Month == date.Month)
+                if (Today.Month == date.Month)
                 {
                     if (Today.Day < date.Day)
                     {
@@ -276,7 +298,7 @@ namespace WebApi.Controllers
                 }
             }
             return msg;
-           
+
         }
     }
 

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
 {
@@ -49,7 +49,7 @@ namespace Domain.Models
         public DateTime Created { get; set; }
 
         [DataType(DataType.Date)]
-      //  [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        //  [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; }
 
     }

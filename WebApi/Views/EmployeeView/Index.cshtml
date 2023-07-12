@@ -4,10 +4,29 @@
 @{
 
     ViewBag.Title = "Index";
-
+    
+    //@ViewData["D"]
 }
 
+
 <style type="text/css">
+
+
+    .hide-after-5s {
+  animation: hide 5s forwards;
+}
+
+@@keyframes hide {
+   
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
+}
+
 
     th {
         font-family: Arial,Verdana,sans-serif;
@@ -87,11 +106,15 @@
         <h2 class="card-title">
 
             Index Page
-
+            
         </h2>
         <div class="form-horizontal contentcustom">
             <div class="alert-info create">
                 @Html.ActionLink("Create New", "Create")
+            </div>
+
+            <div class="alert-info create">
+                @Html.ActionLink("ExportToExcel", "ExportExcel")
             </div>
             
         <table class="table table-bordered table-active table-responsive">
@@ -213,11 +236,11 @@
 
 
                     <td>
-                        @Html.ActionLink("Edit", "Edit", new { id=item.EmpID }) |
+                        @Html.ActionLink("Edit", "Edit", new { EmployeeID=item.EmpID }) |
 
-                        @Html.ActionLink("Details", "Details", new { id=item.EmpID }) |
+                            @Html.ActionLink("Details", "Details", new { EmployeeID=item.EmpID }) |
 
-                        @Html.ActionLink("Delete", "Confirm", new { id=item.EmpID }
+                            @Html.ActionLink("Delete", "Confirm", new { EmployeeID=item.EmpID }
                     )
 
                     </td>
@@ -226,11 +249,34 @@
 
             }
 
-        </table>
-        </div>
 
+        </table>
+            @{
+                if (ViewBag.Message != null)
+                {
+                    <div class="hide-after-5s">
+                        <h3 >
+                            @ViewBag.Message
+                        </h3>
+
+                    </div>
+                }
+            }
+        </div>
+        
+    </div>
 </div>
-</div>
+@section scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            setTimeout(function () { $("h1").css('display', 'none'); }, 15000);
+        });
+
+    </script>
+
+}
 
 
 

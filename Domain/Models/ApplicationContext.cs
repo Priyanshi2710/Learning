@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Models
 {
@@ -19,6 +14,6 @@ namespace Domain.Models
         public DbSet<City> City { get; set; }
         public DbSet<Country> Country { get; set; }
         public DbSet<State> State { get; set; }
-        
+
     }
 }

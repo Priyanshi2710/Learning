@@ -1,11 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Domain.Models;
-using System.Data.Entity.ModelConfiguration.Conventions;
-using Service;
-using Repository;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Repository;
+using Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +32,9 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-}).AddCookie(options => { options.LoginPath = new PathString("/Account/Login");
+}).AddCookie(options =>
+{
+    options.LoginPath = new PathString("/Account/Login");
     options.AccessDeniedPath = new PathString("/Account/Forbidden");
 
 
@@ -53,7 +53,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
 
-   // app.UseSwagger();
+    // app.UseSwagger();
     //app.UseSwaggerUI();
 }
 app.UseStaticFiles();

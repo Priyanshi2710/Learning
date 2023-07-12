@@ -1,12 +1,5 @@
 ﻿using Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -43,12 +36,12 @@ namespace Repository
 
         }
 
-        public virtual async Task<bool> Delete(T entity)
+        public virtual Task<bool> Delete(T entity)
         {
             dbSet.Remove(entity);
             context.SaveChanges();
-            return true;
-           
+            return Task.FromResult(true);
+
         }
 
         public virtual async Task<bool> Update(T entity)
