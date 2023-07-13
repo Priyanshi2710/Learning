@@ -14,6 +14,11 @@
     </p>
 }
 
+@if (ViewBag.ValidationMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ValidationMessage</div>
+}
+
 <h3>Development Mode</h3>
 <p>
     Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.

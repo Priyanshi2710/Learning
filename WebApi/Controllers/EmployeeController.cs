@@ -31,13 +31,13 @@ namespace WebApi.Controllers
                 var emp = await _employeeService.GetAll();
                 if(emp == null)
                 {
-                    return NotFound("Employee not found..");
+                    return NotFound("No records are available.");
                 }
                 return Ok(emp);
 
             }catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(new {error = ex.Message});
             }
             
         }
@@ -48,7 +48,7 @@ namespace WebApi.Controllers
             {
                 if (employeeId == 0)
                 {
-                    return BadRequest("Please enter correct employee id " + employeeId);
+                    return NotFound("Please enter correct employee id " + employeeId);
                 }
                 else
                 {
@@ -65,7 +65,7 @@ namespace WebApi.Controllers
                 }
             }catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(new { error = ex.Message });
             }
             
         }
@@ -77,10 +77,7 @@ namespace WebApi.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Validation validate = new Validation();
-                    string msg = validate.validation(entity);
-                    if (msg == "")
-                    {
+                    
                         var emp = new Employee()
                         {
                             Firstname = entity.Firstname,
@@ -101,23 +98,17 @@ namespace WebApi.Controllers
                         await _employeeService.Add(emp);
                         return Ok("Employee is created" + emp.EmpID);
 
-                    }
-                    else
-                    {
-                        return BadRequest(msg);
-
-                    }
                 }
                 else
                 {
 
-                    return BadRequest(ModelState);
+                    return NotFound(ModelState);
                 }
             }
             catch (Exception ex)
             {
 
-                return BadRequest(ex.Message);
+                return NotFound(new { error = ex.Message });
             }
         }
 
@@ -129,7 +120,7 @@ namespace WebApi.Controllers
             {
                 if (upload.File == null || upload.File.Length == 0)
                 {
-                    return BadRequest("File not uploaded");
+                    return NotFound("File not uploaded");
                 }
                 else
                 {
@@ -172,7 +163,7 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(new { error = ex.Message });
             }
         }
 
@@ -183,7 +174,7 @@ namespace WebApi.Controllers
             {
                 if (employeeId == 0)
                 {
-                    return BadRequest("Please provide employee id");
+                    return NotFound("Please provide employee id");
                 }
                 else
                 {
@@ -218,7 +209,7 @@ namespace WebApi.Controllers
 
                         else
                         {
-                            return BadRequest("No data found for employee id of " + employeeId);
+                            return NotFound("No data found for employee id of " + employeeId);
                         }
                     }
                     else
@@ -231,7 +222,7 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(new { error = ex.Message });
             }
         }
 
@@ -242,7 +233,7 @@ namespace WebApi.Controllers
             {
                 if (employeeId == 0)
                 {
-                    return BadRequest("Please provide employee id...");
+                    return NotFound("Please provide employee id...");
                 }
                 else
                 {
@@ -262,7 +253,7 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return NotFound(new { error = ex.Message });
             }
            
         }
@@ -273,30 +264,12 @@ namespace WebApi.Controllers
         public string validation(CreateEmployee entity)
         {
             string msg = "";
-            var Today = DateTime.Today;
-            DateTime date = (DateTime)entity.Birthdate;
+            
             if (entity.Salary < 500)
             {
                 return SalaryMsg;
             }
-            if (Today.Year - date.Year < 18)
-            {
-                return Age;
-            }
-            if (Today.Year - date.Year == 18)
-            {
-                if (Today.Month < date.Month)
-                {
-                    return Age;
-                }
-                if (Today.Month == date.Month)
-                {
-                    if (Today.Day < date.Day)
-                    {
-                        return Age;
-                    }
-                }
-            }
+            
             return msg;
 
         }

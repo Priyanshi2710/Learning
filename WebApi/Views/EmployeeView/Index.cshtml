@@ -1,31 +1,66 @@
-﻿
-@model IEnumerable<Domain.Models.Employee>
+﻿@model PagedList.IPagedList<Domain.Models.Employee>
+@using PagedList.Mvc;
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+
+
 
 @{
 
     ViewBag.Title = "Index";
-    
-    //@ViewData["D"]
+
+    // @ViewData["Data"];
 }
 
 
 <style type="text/css">
 
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /*background-color: #333;*/
+    }
 
+    li {
+        float: left;
+        border-right: 1px solid #bbb;
+    }
+
+        li:last-child {
+            border-right: none;
+        }
+
+        li a {
+            display: block;
+            color: Black;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+            li a:hover:not(.active) {
+                background-color: #4CAF50;
+            }
+
+    .active {
+        background-color: #4CAF50;
+    }
     .hide-after-5s {
-  animation: hide 5s forwards;
-}
+        animation: hide 5s forwards;
+    }
 
-@@keyframes hide {
-   
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    display: none;
-  }
-}
+    @@keyframes hide {
+
+        0% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            display: none;
+        }
+    }
 
 
     th {
@@ -45,7 +80,7 @@
         border-bottom: 1px solid #ddd;
     }
 
-    
+
     tr:hover {
         background-color: aliceblue;
     }
@@ -55,10 +90,9 @@
         width: fit-content;
         background-color: #fff;
         border-radius: 5px;
-        box-shadow: 0 2px 4px ;
+        box-shadow: 0 2px 4px;
         margin-left: 50px;
         margin-top: 100px;
-        
     }
 
     .card-content {
@@ -92,9 +126,9 @@
         margin: 50px 50px 50px 100px;
     }
 
-    .create{
-        font-size:larger;
-        margin-bottom:10px;
+    .create {
+        font-size: larger;
+        margin-bottom: 10px;
     }
 
 </style>
@@ -106,166 +140,143 @@
         <h2 class="card-title">
 
             Index Page
-            
+
         </h2>
         <div class="form-horizontal contentcustom">
             <div class="alert-info create">
                 @Html.ActionLink("Create New", "Create")
             </div>
 
-            <div class="alert-info create">
-                @Html.ActionLink("ExportToExcel", "ExportExcel")
-            </div>
+
+            @using (Html.BeginForm("Index", "EmployeeView", FormMethod.Get))
+            {
+                @if (Model.Count > 0)
+                {
+                    <table class="table table-bordered table-active table-responsive">
+
+                        <tr class="danger">
+                        </tr>
+
+
+                        @foreach (var item in Model)
+                        {
+
+                            <tr>
+
+                                <td>
+
+                                    @Html.DisplayFor(modelItem => item.Firstname)
+
+                                </td>
+
+                                <td>
+
+                                    @Html.DisplayFor(modelItem => item.Lastname)
+
+
+                                </td>
+
+                                <td>
+
+                                    @Html.DisplayFor(modelItem => item.Email)
+
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Gender)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.MaritalStatus)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Birthdate)
+
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Salary)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Address)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CityCode)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.StateCode)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CountryCode)
+                                </td>
+
+
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { EmployeeID=item.EmpID }) |
+
+                                    @Html.ActionLink("Details", "Details", new { EmployeeID=item.EmpID }) |
+
+                                    @Html.ActionLink("Delete", "Confirm", new { EmployeeID=item.EmpID }
+                        )
+
+                                </td>
+
+                            </tr>
+
+                        }
+
+
+                    </table>
+
+
+                }
+                else
+                {
+                    <p>No Orders yet.</p>
+                }
+             
+            }
             
-        <table class="table table-bordered table-active table-responsive">
-
-            <tr class="danger">
-
-                <th>
-
-                    @Html.DisplayNameFor(model => model.Firstname)
-
-                </th>
-
-                <th>
-
-                    @Html.DisplayNameFor(model => model.Lastname)
-
-                </th>
-
-                <th>
-
-                    @Html.DisplayNameFor(model => model.Email)
-
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Gender)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.MaritalStatus)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Birthdate)
-                </th>
-
-                <th>
-                    @Html.DisplayNameFor(model => model.Salary)
-
-                </th>
-
-                <th>
-                    @Html.DisplayNameFor(model => model.Address)
-
-                </th>
-
-                <th>
-                    @Html.DisplayNameFor(model => model.CityCode)
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount)
+            @Html.PagedListPager( Model.ToPagedList(), page => Url.Action("Index", new { PageNumber=page  }) )
+            <br />
+            
 
 
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.StateCode)
-
-
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.CountryCode)
-
-                </th>
-
-                <th>
-                  
-                </th>
-
-            </tr>
-
-            @foreach (var item in Model)
+            @using (Html.BeginForm("ExportToExcel", "EmployeeView", FormMethod.Post))
             {
 
-                <tr>
 
-                    <td>
-
-                        @Html.DisplayFor(modelItem => item.Firstname)
-
-                    </td>
-
-                    <td>
-
-                        @Html.DisplayFor(modelItem => item.Lastname)
-
-
-                    </td>
-
-                    <td>
-
-                        @Html.DisplayFor(modelItem => item.Email)
-
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Gender)
-                    </td>
-
-                    <td>
-                        @Html.DisplayFor(modelItem => item.MaritalStatus)
-                    </td>
-
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Birthdate)
-
-                    </td>
-
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Salary)
-                    </td>
-
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Address)
-                    </td>
-
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CityCode)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StateCode)
-                    </td>
-
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CountryCode)
-                    </td>
-
-
-                    <td>
-                        @Html.ActionLink("Edit", "Edit", new { EmployeeID=item.EmpID }) |
-
-                            @Html.ActionLink("Details", "Details", new { EmployeeID=item.EmpID }) |
-
-                            @Html.ActionLink("Delete", "Confirm", new { EmployeeID=item.EmpID }
-                    )
-
-                    </td>
-
-                </tr>
+                <input type="submit" value="ExportToExcel" />
 
             }
 
-
-        </table>
             @{
                 if (ViewBag.Message != null)
                 {
                     <div class="hide-after-5s">
-                        <h3 >
+                        <h3>
                             @ViewBag.Message
                         </h3>
 
                     </div>
                 }
             }
+
+            @if (ViewBag.ValidationMessage != null)
+            {
+                <div class="alert alert-danger">@ViewBag.ValidationMessage</div>
+            }
+
         </div>
         
+
     </div>
 </div>
+
 @section scripts {
 
     <script type="text/javascript">
@@ -277,8 +288,3 @@
     </script>
 
 }
-
-
-
-
-
