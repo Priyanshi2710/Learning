@@ -9,46 +9,56 @@
         background-color: #dee2e6;
     }
 
-    .card {
-        height: fit-content;
-        width: fit-content;
-        background-color: #fff;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px;
-        margin-left: 350px;
-        margin-top: 70px;
+    .hide-after-5s {
+        animation: hide 5s forwards;
     }
 
-    .card-content {
+    @@keyframes hide {
+
+        0% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            display: none;
+        }
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+    }
+
+        .container .card {
+            height: fit-content;
+            width: fit-content;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px;
+            transition: 0.2s;
+            float: left;
+            margin-left: 10px;
+        }
+
+    .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+
+    .card .card-content {
         padding: 10px;
         background-color: cornsilk;
     }
 
-    .card-title {
+    .card .card-title {
         font-size: 20px;
-        margin: 0;       
+        margin: 0;
         text-align: center;
     }
 
-    .card-description {
-        margin-top: 10px;
-    }
-
-    .card-link {
-        display: block;
-        margin-top: 10px;
-        color: #007bff;
-        text-decoration: none;
-    }
-
-    .form-center {
-        display: flex;
-        justify-content: center;
-    }
-
-    .contentcustom {
-        margin: 50px 50px 50px 100px;
-    }
 
     .control-label {
         font-size: 18px;
@@ -69,17 +79,44 @@
         border-color:burlywood;
         width: max-content;
     }
+
+    /* Media Query for responsive layout */
+    @@media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+    }
 </style>
 
-<div class="card">
-    <div class="card-content">
+<div class="container">
 
-        <h2 class="card-title">Create Employee</h2>
+    <div class="card">
+        <div class="card-content">
+            <h2 class="card-title">
+                Create Employee
+            </h2>
+
+        @{
+            if (ViewBag.Message != null)
+            {
+                <div class="hide-after-5s">
+                    <h3>
+                        @ViewBag.Message
+                    </h3>
+
+                </div>
+            }
+        }
+
 
         @using (Html.BeginForm())
 
         {
-            <div class="form-horizontal contentcustom">
+            <div class="form-horizontal ">
 
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
@@ -261,17 +298,8 @@
                 </div>
 
         }
-        @{
-            if (ViewBag.Message != null)
-            {
-                <div>
-                    @ViewBag.Message
-                </div>
-            }
-        }
-
-
     </div>
-        </div>
+</div>
+</div>
 
 

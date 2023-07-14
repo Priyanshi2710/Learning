@@ -18,7 +18,7 @@ namespace Domain.Models
         public string? MaritalStatus { get; set; }
         //public IFormFile EmpPhoto { get; set; }
 
-        public DateTime Birthdate { get; set; } = DateTime.MinValue;
+        public DateTime Birthdate { get; set; }
 
         public decimal Salary { get; set; }
 
@@ -33,28 +33,28 @@ namespace Domain.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            var Today = DateTime.Today;
-            if (Today.Year - Birthdate.Year == 18 || Today.Year - Birthdate.Year < 18)
-            {
-                if (Today.Month < Birthdate.Month)
-                {
-                   yield return new ValidationResult("Eligibility 18 years ONLY.");
-                }
-                if (Today.Month == Birthdate.Month)
-                {
-                    if (Today.Day < Birthdate.Day)
-                    {
-                        yield return new ValidationResult("Eligibility 18 years ONLY.");
-                    }
-                }
-                yield return new ValidationResult("Eligibility 18 years ONLY.");
+            //var Today = DateTime.Today;
+            //if (Today.Year - Birthdate.Value.Year == 18 || Today.Year - Birthdate.Value.Year < 18)
+            //{
+            //    if (Today.Month < Birthdate.Value.Month)
+            //    {
+            //        yield return new ValidationResult("Eligibility 18 years ONLY.");
+            //    }
+            //    if (Today.Month == Birthdate.Value.Month)
+            //    {
+            //        if (Today.Day < Birthdate.Value.Day)
+            //        {
+            //            yield return new ValidationResult("Eligibility 18 years ONLY.");
+            //        }
+            //    }
+            //    yield return new ValidationResult("Eligibility 18 years ONLY.");
 
-            }
+            //}
             if (Salary < 500)
             {
                 yield return new ValidationResult("Invalid salary");
             }
         }
-        
+
     }
 }

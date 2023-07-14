@@ -1,12 +1,16 @@
-﻿@model PagedList.IPagedList<Domain.Models.Employee>
-@using PagedList.Mvc;
-@using X.PagedList;
-@using X.PagedList.Mvc.Core;
+﻿@model IEnumerable<Domain.Models.Employee>
+@{
+    
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    
+}
 
 
 
 @{
-
+  
+    var employeeData = (IEnumerable<Domain.Models.Employee>)ViewData["EmployeeData"];
     ViewBag.Title = "Index";
 
     // @ViewData["Data"];
@@ -15,39 +19,38 @@
 
 <style type="text/css">
 
-    ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden; /*background-color: #333;*/
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
     }
 
-    li {
-        float: left;
-        border-right: 1px solid #bbb;
-    }
-
-        li:last-child {
-            border-right: none;
-        }
-
-        li a {
-            display: block;
-            color: Black;
-            text-align: center;
-            padding: 14px 16px;
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            margin: 0 5px;
             text-decoration: none;
+            color: #333;
+            background-color: #f4f4f4;
+            border-radius: 3px;
         }
 
-            li a:hover:not(.active) {
-                background-color: #4CAF50;
+            .pagination a:hover {
+                background-color: #ddd;
             }
 
-    .active {
-        background-color: #4CAF50;
-    }
+        .pagination .current-page {
+            padding: 8px 12px;
+            margin: 0 5px;
+            color: #fff;
+            background-color: #333;
+            border-radius: 3px;
+        }
+
+        
     .hide-after-5s {
-        animation: hide 5s forwards;
+        animation: hide 7s forwards;
+        text-align: center;
     }
 
     @@keyframes hide {
@@ -70,71 +73,148 @@
     table {
         border-collapse: collapse;
         width: 100%;
-        display: block;
         background-color: aliceblue;
+        display: block;
+        
+        white-space: nowrap;
     }
 
     th, td {
         padding: 8px;
         text-align: left;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #a09494;
     }
 
 
     tr:hover {
-        background-color: aliceblue;
+        background-color: #dde4eb;
+        
     }
 
-    .card {
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+    }
+
+    .container .card {
         height: fit-content;
-        width: fit-content;
+        width:fit-content;
         background-color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 4px;
-        margin-left: 50px;
-        margin-top: 100px;
+        transition: 0.2s;
+        float: left;
+        margin-left: 10px;
+
     }
 
-    .card-content {
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+
+    .card .card-content {
         padding: 10px;
         background-color: cornsilk;
+
     }
 
-    .card-title {
+    .card .card-title {
         font-size: 20px;
         margin: 0;
         text-align: center;
     }
+    
 
-    .card-description {
-        margin-top: 10px;
-    }
 
-    .card-link {
-        display: block;
-        margin-top: 10px;
-        color: #007bff;
+    .button {
+        display: inline-block;
+        padding: 9px 2px;
+        font-size: 14px;
+        text-align: center;
         text-decoration: none;
+        background-color: #a09494;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
     }
 
-    .form-center {
-        display: flex;
-        justify-content: center;
+        .button:hover {
+            background-color: #8b8181;
+        }
+
+        .button:active {
+            background-color: #8b8181;
+            
+        }
+
+    
+
+    .btn1 {
+        margin-right: 0px;
     }
 
-    .contentcustom {
-        margin: 50px 50px 50px 100px;
+    .btn2 {
+        margin-left: 10px;
+    }
+
+    .button-container{
+        display: inline-flex;
     }
 
     .create {
         font-size: larger;
-        margin-bottom: 10px;
+        margin-right: 0px;
+        float: right;
+        
+        
+    }
+    .create:active{
+        color:cornflowerblue;
     }
 
+    .buttons {
+        display: inline-flex;
+       margin-left: 10px;
+       
+    }
+
+    /* Media Query for responsive layout */
+@@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .card {
+    margin-bottom: 20px;
+  }
+}
+
+    @@media screen and (max-width: 600px) {
+        table thead {
+            display: none;
+        }
+        /* Display table rows as blocks for better readability */
+        table tbody, table tr, table td {
+            display: block;
+            width: 100%;
+        }
+        /* Add bottom border to table rows */
+        table tr {
+            border-bottom: 1px solid #dddddd;
+        }
+        /* Add padding to table cells */
+        table td {
+            padding: 10px;
+        }
+    }
 </style>
 
-
-
+<div class="container">
+    
 <div class="card">
     <div class="card-content">
         <h2 class="card-title">
@@ -142,23 +222,90 @@
             Index Page
 
         </h2>
-        <div class="form-horizontal contentcustom">
-            <div class="alert-info create">
+
+           
+        <div>
+            <div class="create">
                 @Html.ActionLink("Create New", "Create")
+
+
+            </div>
+            <div class="buttons">
+                @using (Html.BeginForm("ExportToExcel", "EmployeeView", FormMethod.Post))
+                {
+                    <input type="hidden" name="CurrentPage" value="@ViewBag.CurrentPage" />
+
+                    <input type="submit" value="ExportCurrentPage" class="button btn1" />
+                }
+
+                @using (Html.BeginForm("ExportToExcel", "EmployeeView", FormMethod.Post))
+                {
+                    <input type="hidden" name="CurrentPage" value="0" />
+                    <input type="submit" value="ExportAll" class=" button btn2" />
+                }
+
             </div>
 
+        </div>
+        <div class="form-horizontal ">
+            
 
             @using (Html.BeginForm("Index", "EmployeeView", FormMethod.Get))
             {
-                @if (Model.Count > 0)
+                    @if (employeeData.Count() > 0)
                 {
-                    <table class="table table-bordered table-active table-responsive">
+                    <table class="table ">
 
                         <tr class="danger">
+                            <th>
+                                    First Name
+                                
+                            </th>
+
+                            <th>
+                                    Last Name
+                            </th>
+
+                            <th>
+                                    Email
+                            </th>
+                            <th>
+                                    Gender
+                            </th>
+                            <th>
+                                    Marital Status
+                            </th>
+                                <th>
+                                    Birthdate
+                                </th>
+
+                                <th>
+                                    Salary
+
+                                </th>
+
+                                <th>
+                                    Address
+
+                                </th>
+
+                                <th>
+                                    City Code
+
+                                </th>
+                                <th>
+                                    State Code
+                                </th>
+                                <th>
+                                    Country Code
+                                </th>
+
+                            <th></th>
+
                         </tr>
 
 
-                        @foreach (var item in Model)
+                            @foreach (var item in employeeData)
                         {
 
                             <tr>
@@ -219,8 +366,7 @@
 
                                     @Html.ActionLink("Details", "Details", new { EmployeeID=item.EmpID }) |
 
-                                    @Html.ActionLink("Delete", "Confirm", new { EmployeeID=item.EmpID }
-                        )
+                                    @Html.ActionLink("Delete", "Confirm", new { EmployeeID=item.EmpID })
 
                                 </td>
 
@@ -231,6 +377,8 @@
 
                     </table>
 
+                   
+
 
                 }
                 else
@@ -238,21 +386,37 @@
                     <p>No Orders yet.</p>
                 }
              
-            }
+            }<!-- Generate pagination links -->
+            <div class="pagination">
+                @if (currentPage > 1)
+                {
+                    @Html.ActionLink("First", "Index", new { page = 1 })
+                    @Html.ActionLink("Previous", "Index", new { page = currentPage - 1 })
+                }
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    if (i == currentPage)
+                    {
+                        <span class="current-page">@currentPage</span>
+                    }
+                    else
+                    {
+                        @Html.ActionLink(i.ToString(), "Index", new { page = i })
+                    }
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    @Html.ActionLink("Next", "Index", new { page = currentPage + 1 })
+                    @Html.ActionLink("Last", "Index", new { page = totalPages })
+                }
+            </div>
+
             
-            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount)
-            @Html.PagedListPager( Model.ToPagedList(), page => Url.Action("Index", new { PageNumber=page  }) )
-            <br />
+           
             
-
-
-            @using (Html.BeginForm("ExportToExcel", "EmployeeView", FormMethod.Post))
-            {
-
-
-                <input type="submit" value="ExportToExcel" />
-
-            }
+            
 
             @{
                 if (ViewBag.Message != null)
@@ -277,6 +441,8 @@
     </div>
 </div>
 
+</div>
+
 @section scripts {
 
     <script type="text/javascript">
@@ -287,4 +453,6 @@
 
     </script>
 
+    
+    
 }

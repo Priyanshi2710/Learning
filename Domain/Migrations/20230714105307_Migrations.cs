@@ -1,27 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class initial2 : Migration
+    public partial class Migrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_City_CityCode",
-                table: "Employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_Country_CountryCode",
-                table: "Employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_State_StateCode",
-                table: "Employees");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -59,6 +48,19 @@ namespace Domain.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Country",
+                columns: table => new
+                {
+                    CountryCode = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Countryname = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Country", x => x.CountryCode);
                 });
 
             migrationBuilder.CreateTable(
@@ -167,6 +169,91 @@ namespace Domain.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "State",
+                columns: table => new
+                {
+                    StateCode = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StateName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CountryCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_State", x => x.StateCode);
+                    table.ForeignKey(
+                        name: "FK_State_Country_CountryCode",
+                        column: x => x.CountryCode,
+                        principalTable: "Country",
+                        principalColumn: "CountryCode",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "City",
+                columns: table => new
+                {
+                    CityCode = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Cityname = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StateCode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_City", x => x.CityCode);
+                    table.ForeignKey(
+                        name: "FK_City_State_StateCode",
+                        column: x => x.StateCode,
+                        principalTable: "State",
+                        principalColumn: "StateCode",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Employees",
+                columns: table => new
+                {
+                    EmpID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Firstname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Lastname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MaritalStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmpPhoto = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Birthdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Salary = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CountryCode = table.Column<int>(type: "int", nullable: false),
+                    CityCode = table.Column<int>(type: "int", nullable: false),
+                    StateCode = table.Column<int>(type: "int", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Employees", x => x.EmpID);
+                    table.ForeignKey(
+                        name: "FK_Employees_City_CityCode",
+                        column: x => x.CityCode,
+                        principalTable: "City",
+                        principalColumn: "CityCode",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Employees_Country_CountryCode",
+                        column: x => x.CountryCode,
+                        principalTable: "Country",
+                        principalColumn: "CountryCode",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Employees_State_StateCode",
+                        column: x => x.StateCode,
+                        principalTable: "State",
+                        principalColumn: "StateCode",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -206,46 +293,35 @@ namespace Domain.Migrations
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Employees_City_CityCode",
-                table: "Employees",
-                column: "CityCode",
-                principalTable: "City",
-                principalColumn: "CityCode",
-                onDelete: ReferentialAction.NoAction);
+            migrationBuilder.CreateIndex(
+                name: "IX_City_StateCode",
+                table: "City",
+                column: "StateCode");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Employees_Country_CountryCode",
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_CityCode",
                 table: "Employees",
-                column: "CountryCode",
-                principalTable: "Country",
-                principalColumn: "CountryCode",
-                onDelete: ReferentialAction.NoAction);
+                column: "CityCode");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Employees_State_StateCode",
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_CountryCode",
                 table: "Employees",
-                column: "StateCode",
-                principalTable: "State",
-                principalColumn: "StateCode",
-                onDelete: ReferentialAction.NoAction);
+                column: "CountryCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_StateCode",
+                table: "Employees",
+                column: "StateCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_State_CountryCode",
+                table: "State",
+                column: "CountryCode");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_City_CityCode",
-                table: "Employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_Country_CountryCode",
-                table: "Employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Employees_State_StateCode",
-                table: "Employees");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -262,31 +338,22 @@ namespace Domain.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Employees");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Employees_City_CityCode",
-                table: "Employees",
-                column: "CityCode",
-                principalTable: "City",
-                principalColumn: "CityCode");
+            migrationBuilder.DropTable(
+                name: "City");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Employees_Country_CountryCode",
-                table: "Employees",
-                column: "CountryCode",
-                principalTable: "Country",
-                principalColumn: "CountryCode");
+            migrationBuilder.DropTable(
+                name: "State");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Employees_State_StateCode",
-                table: "Employees",
-                column: "StateCode",
-                principalTable: "State",
-                principalColumn: "StateCode");
+            migrationBuilder.DropTable(
+                name: "Country");
         }
     }
 }

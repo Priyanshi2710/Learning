@@ -8,54 +8,24 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Data;
 using ClosedXML.Excel;
-using PagedList;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Drawing.Printing;
+using System.Reflection;
 
 namespace WebApi.Controllers
 {
     public class EmployeeViewController : Controller
     {
-        // GET: ViewController
-        public async Task<ActionResult> Index(int? Page_No)
+        private readonly IConfiguration _configuration;
+        public EmployeeViewController(IConfiguration configuration)
         {
-            
-            ViewBag.Message = TempData["Message"];
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
-            string apiUrl = $"{url}Employee/";
-           
-            List<Employee> EmpInfo = new List<Employee>();
-            using (var client = new HttpClient())
-            {
-                //Passing service base url
-                client.BaseAddress = new Uri(apiUrl);
-                client.DefaultRequestHeaders.Clear();
-                //Define request data format
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                //Sending request to find web api REST service resource GetAllEmployees using HttpClient
-                HttpResponseMessage Res = await client.GetAsync("/Employee") ;
-                //Checking the response is successful or not which is sent using HttpClient
-                if (Res.IsSuccessStatusCode)
-                {
-                    //Storing the response details recieved from web api
-                    var EmpResponse = Res.Content.ReadAsStringAsync().Result;
-                    //Deserializing the response recieved from web api and storing into the Employee list
-                    EmpInfo = JsonConvert.DeserializeObject<List<Employee>>(EmpResponse);
-                }
-                //returning the employee list to view
-                int Size_Of_Page = 4;
-                int No_Of_Page = (Page_No ?? 1);
 
-                
-                return View(EmpInfo.ToPagedList(No_Of_Page, Size_Of_Page));
-
-            }
+            _configuration = configuration;
         }
-        [HttpPost]
-        public async Task<FileResult> ExportToExcelAsync()
-        {
-            
 
+        // GET: ViewController
+        public async Task<ActionResult> Index(int page = 1)
+        {
+            int pageSize = _configuration.GetValue<int>("MySettings:pageSize");
+            ViewBag.Message = TempData["Message"];
             var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
             string apiUrl = $"{url}Employee/";
 
@@ -77,30 +47,75 @@ namespace WebApi.Controllers
                     //Deserializing the response recieved from web api and storing into the Employee list
                     EmpInfo = JsonConvert.DeserializeObject<List<Employee>>(EmpResponse);
                 }
-            }
-           
-                DataTable dt = new DataTable("Grid");
+                //returning the employee list to view
+                //int pageSize = 3; // Number of items per page
 
-                dt.Columns.Add("EmpID");
-                dt.Columns.Add("Firstname");
-                dt.Columns.Add("Lastname");
-                dt.Columns.Add("Email");
-                dt.Columns.Add("Gender");
-                dt.Columns.Add("MaritalStatus");
-                dt.Columns.Add("Birthdate");
-                dt.Columns.Add("Salary");
-                dt.Columns.Add("Address");
-                dt.Columns.Add("CountryCode");
-                dt.Columns.Add("CityCode");
-                dt.Columns.Add("StateCode");
-                dt.Columns.Add("Created");
-                dt.Columns.Add("Updated");
+
+
+                int totalItems = EmpInfo.Count(); // Total number of items
+
+                var paginatedData = EmpInfo.Skip((page - 1) * pageSize).Take(pageSize);
+                ViewData["EmployeeData"] = paginatedData;
+
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+                return View();
+
+            }
+        }
+        [HttpPost]
+        public async Task<FileResult> ExportToExcel(int CurrentPage)
+        {
+            int pageSize = _configuration.GetValue<int>("MySettings:pageSize");
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+            string apiUrl = $"{url}Employee/";
+
+            List<Employee> EmpInfo = new List<Employee>();
+            using (var client = new HttpClient())
+            {
+                //Passing service base url
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+                //Define request data format
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //Sending request to find web api REST service resource GetAllEmployees using HttpClient
+                HttpResponseMessage Res = await client.GetAsync("/Employee");
+                //Checking the response is successful or not which is sent using HttpClient
+                if (Res.IsSuccessStatusCode)
+                {
+                    //Storing the response details recieved from web api
+                    var EmpResponse = Res.Content.ReadAsStringAsync().Result;
+                    //Deserializing the response recieved from web api and storing into the Employee list
+                    EmpInfo = JsonConvert.DeserializeObject<List<Employee>>(EmpResponse);
+                }
+
+                //returning the employee list to view
+                if (CurrentPage > 0)
+                {
+                    //int pageSize = 3;
+                    int totalItems = EmpInfo.Count(); // Total number of items
+                    EmpInfo = EmpInfo.Skip((CurrentPage - 1) * pageSize).Take(pageSize).ToList();
+
+
+                }
+                DataTable dt = new DataTable(typeof(Employee).Name);
+                PropertyInfo[] PropertyInfos = typeof(Employee).GetProperties();
+
+                foreach (PropertyInfo prop in PropertyInfos)
+                {
+                    dt.Columns.Add(prop.Name);
+                }
 
 
                 foreach (var item in EmpInfo)
                 {
-
-                    dt.Rows.Add(item.EmpID, item.Firstname, item.Lastname, item.Email, item.Gender, item.MaritalStatus, item.Birthdate, item.Salary, item.Address, item.CountryCode, item.CityCode, item.StateCode, item.Created, item.Updated);
+                    var values = new object[PropertyInfos.Length];
+                    for (int i = 0; i < PropertyInfos.Length; i++)
+                    {
+                        values[i] = PropertyInfos[i].GetValue(item, null);
+                    }
+                    dt.Rows.Add(values);
 
                 }
                 using (XLWorkbook wb = new XLWorkbook())
@@ -109,11 +124,17 @@ namespace WebApi.Controllers
                     using (MemoryStream stream = new MemoryStream())
                     {
                         wb.SaveAs(stream);
-                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "EmployeeReport.xlsx");
+                        if (CurrentPage > 0)
+                        {
+                            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "EmployeeReport.xlsx");
+                        }
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "AllEmployeeReport.xlsx");
                     }
                 }
-       
-             
+            }
+
+
+
         }
 
 
@@ -124,10 +145,10 @@ namespace WebApi.Controllers
 
             using (var client = new HttpClient())
             {
-          
+
                 var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
                 string apiUrl = $"{baseUrl}Employee/";
-               // client.BaseAddress = new Uri("https://localhost:7286/Employee/");
+                // client.BaseAddress = new Uri("https://localhost:7286/Employee/");
                 client.BaseAddress = new Uri(apiUrl);
                 //HTTP GET
                 var responseTask = client.GetAsync(EmployeeID.ToString());
@@ -150,6 +171,7 @@ namespace WebApi.Controllers
         // GET: ViewController/Create
         public ActionResult Create()
         {
+            ViewBag.Message = TempData["Message"];
             return View();
         }
 
@@ -158,16 +180,22 @@ namespace WebApi.Controllers
 
         public ActionResult Create(CreateEmployee employee)
         {
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
-            string apiUrl = $"{url}Employee/";
-           
+            
             try
             {
-                if (employee == null)
+                
+                if (!ModelState.IsValid)
                 {
-                    TempData["Message"] = "Kindly fill all details.";
-                    return View();
+                   
+                        TempData["Message"] = "Kindly fill all details.";
+                        return RedirectToAction("Create");
+                    
                 }
+                    
+
+                var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
+                string apiUrl = $"{url}Employee/";
+
                 var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -181,14 +209,14 @@ namespace WebApi.Controllers
                     request.Content = content;
                     var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
                     response.EnsureSuccessStatusCode();
-                   
-                   
+
+
                     return RedirectToAction("Index");
 
                 }
 
             }
-            catch(HttpRequestException httpRequestException)
+            catch 
             {
                 return View();
             }
@@ -234,8 +262,17 @@ namespace WebApi.Controllers
 
             try
             {
-               
-                
+
+                if (!ModelState.IsValid)
+                {
+
+                    TempData["Message"] = "No details are changed";
+                    return RedirectToAction("Edit");
+
+                }
+
+
+
                 var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/";
                 string apiUrl = $"{url}Employee/{EmployeeID}";
                 var request = new HttpRequestMessage(HttpMethod.Put, apiUrl);
@@ -307,7 +344,7 @@ namespace WebApi.Controllers
                 request.Content = content;
                 using (var client = new HttpClient())
                 {
-                    
+
                     client.BaseAddress = new Uri(apiUrl);
                     var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
                     response.EnsureSuccessStatusCode();
@@ -317,9 +354,9 @@ namespace WebApi.Controllers
                 }
 
             }
-            catch(NullReferenceException)
+            catch (NullReferenceException)
             {
-               
+
                 return View();
             }
 

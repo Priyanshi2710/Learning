@@ -3,50 +3,47 @@
 
     ViewBag.Title = "Details";
 
-    @ViewData["D"];
 }
 <style type="text/css">
 
-
-    .card {
-        height: fit-content;
-        width: fit-content;
-        background-color: #fff;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px;
-        margin-left: 350px;
-        margin-top: 70px;
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
     }
 
-    .card-content {
+        .container .card {
+            height: fit-content;
+            width: fit-content;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px;
+            transition: 0.2s;
+            float: left;
+            margin-left: 10px;
+        }
+
+    .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+
+    .card .card-content {
         padding: 10px;
         background-color: cornsilk;
     }
 
-    .card-title {
+    .card .card-title {
         font-size: 20px;
         margin: 0;
         text-align: center;
     }
 
-    .card-description {
-        margin-top: 10px;
-    }
-
-    .card-link {
-        display: block;
-        margin-top: 10px;
-        color: #007bff;
-        text-decoration: none;
-    }
 
     .form-center {
         display: flex;
         justify-content: center;
-    }
-
-    .contentcustom {
-        margin: 50px 50px 50px 100px;
     }
 
     .control-label {
@@ -79,17 +76,32 @@
         color: red;
     }
 
+    /* Media Query for responsive layout */
+    @@media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+    }
+
 </style>
 
 
-<div class="card">
-    <div class="card-content">
 
-<h2 class="card-title">Employee Details</h2>
+<div class="container">
+
+    <div class="card">
+        <div class="card-content">
+            <h2 class="card-title">
+                Employee Details
+            </h2>
 
 @using (Html.BeginForm())
 {
-    <div class="form-horizontal contentcustom">
+    <div class="form-horizontal">
       
 
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -257,3 +269,5 @@
         }
     </div>
 </div>
+
+                </div>
