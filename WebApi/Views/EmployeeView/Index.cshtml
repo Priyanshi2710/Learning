@@ -235,13 +235,13 @@
                 {
                     <input type="hidden" name="CurrentPage" value="@ViewBag.CurrentPage" />
 
-                    <input type="submit" value="ExportCurrentPage" class="button btn1" />
+                    <input type="submit" value="Export Current Page" class="button btn1" />
                 }
 
                 @using (Html.BeginForm("ExportToExcel", "EmployeeView", FormMethod.Post))
                 {
                     <input type="hidden" name="CurrentPage" value="0" />
-                    <input type="submit" value="ExportAll" class=" button btn2" />
+                    <input type="submit" value="Export All" class=" button btn2" />
                 }
 
             </div>
