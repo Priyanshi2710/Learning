@@ -18,7 +18,7 @@ namespace Domain.Models
         public string? MaritalStatus { get; set; }
         //public IFormFile EmpPhoto { get; set; }
 
-        public DateTime Birthdate { get; set; }
+        public DateTime? Birthdate { get; set; }
 
         public decimal Salary { get; set; }
 

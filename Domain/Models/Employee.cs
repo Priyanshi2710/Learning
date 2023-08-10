@@ -20,7 +20,7 @@ namespace Domain.Models
         public string? EmpPhoto { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime Birthdate { get; set; }
+        public DateTime? Birthdate { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal Salary { get; set; }

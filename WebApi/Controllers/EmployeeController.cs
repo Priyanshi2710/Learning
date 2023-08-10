@@ -1,4 +1,5 @@
 ﻿using Domain.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Service;
@@ -23,6 +24,7 @@ namespace WebApi.Controllers
             _employeeService = employeeService;
            
         }
+        [EnableCors("AllowAllOrigins")]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -41,6 +43,7 @@ namespace WebApi.Controllers
             }
             
         }
+        [EnableCors("AllowAllOrigins")]
         [HttpGet("{employeeId}")]
         public async Task<IActionResult> GetEmployee(int employeeId)
         {
@@ -69,7 +72,7 @@ namespace WebApi.Controllers
             }
             
         }
-
+        [EnableCors("AllowAllOrigins")]
         [HttpPost(Name = "AddEmployee")]
         public async Task<ActionResult<Employee>> Add(CreateEmployee entity)
         {
@@ -111,7 +114,7 @@ namespace WebApi.Controllers
                 return NotFound(new { error = ex.Message });
             }
         }
-
+        [EnableCors("AllowAllOrigins")]
         [HttpPut, ActionName("UploadFile")]
         public async Task<IActionResult> UploadFileAsync([FromForm] FileUpload upload)
         {
@@ -166,7 +169,7 @@ namespace WebApi.Controllers
                 return NotFound(new { error = ex.Message });
             }
         }
-
+        [EnableCors("AllowAllOrigins")]
         [HttpPut("{employeeId}")]
         public async Task<IActionResult> Update(CreateEmployee entity, int employeeId)
         {
@@ -225,7 +228,7 @@ namespace WebApi.Controllers
                 return NotFound(new { error = ex.Message });
             }
         }
-
+        [EnableCors("AllowAllOrigins")]
         [HttpDelete("{employeeId}")]
         public async Task<IActionResult> DeleteEmployee(int employeeId)
         {

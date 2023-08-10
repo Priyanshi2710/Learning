@@ -346,6 +346,7 @@ namespace WebApi.Controllers
                 {
 
                     client.BaseAddress = new Uri(apiUrl);
+                    
                     var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
                     response.EnsureSuccessStatusCode();
 

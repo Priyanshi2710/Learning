@@ -6,9 +6,23 @@ using Repository;
 using Service;
 
 var builder = WebApplication.CreateBuilder(args);
+//var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin();
+        builder.AllowAnyMethod();
+        builder.AllowAnyHeader();
 
+
+        /*.AllowAnyMethod()
+        .AllowAnyHeader()
+        .WithOrigins("https://localhost:3000");*/
+    });
+});
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 
@@ -61,6 +75,7 @@ app.UseStaticFiles();
 
 
 app.UseRouting();
+app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 
 app.UseAuthorization();
